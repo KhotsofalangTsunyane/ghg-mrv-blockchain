@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EmissionsMRV — Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div class="page">
+
+  <header class="masthead">
+    <div class="masthead__title">
+      <p class="eyebrow">Chain of custody · Sepolia testnet</p>
+      <h1>EmissionsMRV Ledger</h1>
+      <p class="subtitle">Monitoring, reporting and verification for greenhouse gas emissions</p>
+    </div>
+    <div class="masthead__wallet">
+      <button id="connectBtn" class="btn btn--primary">Connect wallet</button>
+      <div id="walletInfo" class="wallet-info hidden">
+        <span id="walletAddress" class="mono"></span>
+        <span id="roleBadge" class="badge">—</span>
+      </div>
+    </div>
+  </header>
+
+  <div id="banner" class="banner hidden"></div>
+
+  <main class="ledger">
+
+    <!-- REGULATOR -->
+    <section class="entry" id="section-regulator">
+      <div class="entry__number">01</div>
+      <div class="entry__body">
+        <h2>Register a facility <span class="who">— regulator only</span></h2>
+        <p class="hint">Adds a manufacturing site to the registry and authorises one wallet to submit on its behalf.</p>
+        <form id="registerForm" class="form">
+          <label>Facility name
+            <input type="text" id="facilityName" placeholder="e.g. Johannesburg Steel Plant" required />
+          </label>
+          <label>Authorised submitter wallet
+            <input type="text" id="submitterAddr" placeholder="0x..." required />
+          </label>
+          <button type="submit" class="btn btn--stamp">Register facility</button>
+        </form>
+        <div class="result" id="registerResult"></div>
+      </div>
+    </section>
+
+    <section class="entry" id="section-verifiers">
+      <div class="entry__number">02</div>
+      <div class="entry__body">
+        <h2>Manage verifiers <span class="who">— regulator only</span></h2>
+        <p class="hint">Grant or revoke independent auditor privileges for a wallet address.</p>
+        <form id="verifierForm" class="form form--inline">
+          <label class="grow">Verifier wallet
+            <input type="text" id="verifierAddr" placeholder="0x..." required />
+          </label>
+          <button type="submit" class="btn btn--stamp" data-action="add">Add verifier</button>
+          <button type="button" class="btn btn--stamp btn--muted" id="removeVerifierBtn">Remove</button>
+        </form>
+        <div class="result" id="verifierResult"></div>
+      </div>
+    </section>
+
+    <!-- FACILITY -->
+    <section class="entry" id="section-submit">
+      <div class="entry__number">03</div>
+      <div class="entry__body">
+        <h2>Submit an emission record <span class="who">— authorised facility wallet</span></h2>
+        <p class="hint">Select the report file: its keccak256 hash is computed in-browser and only the hash is sent on-chain. The file itself never leaves your machine.</p>
+        <form id="submitForm" class="form">
+          <label>Facility ID
+            <input type="number" id="submitFacilityId" min="1" placeholder="1" required />
+          </label>
+          <label>Emissions report file
+            <input type="file" id="reportFile" required />
+          </label>
+          <div class="hash-preview mono" id="hashPreview">No file selected</div>
+          <div class="form__row">
+            <label>Period start
+              <input type="datetime-local" id="periodStart" required />
+            </label>
+            <label>Period end
+              <input type="datetime-local" id="periodEnd" required />
+            </label>
+          </div>
+          <button type="submit" class="btn btn--stamp">Submit record</button>
+        </form>
+        <div class="result" id="submitResult"></div>
+      </div>
+    </section>
+
+    <!-- VERIFIER -->
+    <section class="entry" id="section-verify">
+      <div class="entry__number">04</div>
+      <div class="entry__body">
+        <h2>Verify a record <span class="who">— authorised verifier only</span></h2>
+        <p class="hint">A record can only be finalised once. Approving or rejecting locks it permanently.</p>
+        <form id="verifyForm" class="form form--inline">
+          <label class="grow">Record ID
+            <input type="number" id="verifyRecordId" min="1" placeholder="1" required />
+          </label>
+          <button type="submit" class="btn btn--verified" data-approved="true">Approve</button>
+          <button type="button" class="btn btn--rejected" id="rejectBtn">Reject</button>
+        </form>
+        <div class="result" id="verifyResult"></div>
+      </div>
+    </section>
+
+    <!-- LOOKUP -->
+    <section class="entry" id="section-lookup">
+      <div class="entry__number">05</div>
+      <div class="entry__body">
+        <h2>Ledger lookup <span class="who">— open to anyone</span></h2>
+        <p class="hint">Retrieve a facility or emission record directly from the chain, free of gas cost.</p>
+        <div class="form form--inline">
+          <label class="grow">Record ID
+            <input type="number" id="lookupRecordId" min="1" placeholder="1" />
+          </label>
+          <button type="button" class="btn btn--stamp" id="lookupRecordBtn">Look up record</button>
+        </div>
+        <div class="form form--inline">
+          <label class="grow">Facility ID
+            <input type="number" id="lookupFacilityId" min="1" placeholder="1" />
+          </label>
+          <button type="button" class="btn btn--stamp" id="lookupFacilityBtn">Look up facility</button>
+        </div>
+        <div class="result result--card" id="lookupResult"></div>
+      </div>
+    </section>
+
+    <!-- ACTIVITY LOG -->
+    <section class="entry" id="section-log">
+      <div class="entry__number">06</div>
+      <div class="entry__body">
+        <h2>Activity log</h2>
+        <p class="hint">Live feed of events emitted by the contract since you connected.</p>
+        <ul class="log" id="activityLog">
+          <li class="log__empty">Connect your wallet to start watching events.</li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <p>EmissionsMRV · FINE7079A Assignment 1 · Contract source in <span class="mono">/contracts/EmissionsMRV.sol</span></p>
+  </footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+<script src="abi.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
