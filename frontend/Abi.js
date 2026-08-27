@@ -3,14 +3,14 @@
 // Local Hardhat node:  npx hardhat node   then   npm run deploy:local
 // Sepolia (for the actual submission):           npm run deploy:sepolia
 // ---------------------------------------------------------------------
-const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+const CONTRACT_ADDRESS = "0xEE09042D95615dA9E867e1c481b6393Bfb514aE0";
 
 // --- Network config: swap between these two blocks as needed. ---
 
 // Option A: local Hardhat node (npx hardhat node)
-const EXPECTED_CHAIN_ID_HEX = "0x7a69"; // 31337
-const EXPECTED_CHAIN_NAME = "Hardhat Local";
-const EXPLORER_BASE_URL = ""; // no block explorer for a local chain
+//const EXPECTED_CHAIN_ID_HEX = "0x7a69"; // 31337
+//const EXPECTED_CHAIN_NAME = "Hardhat Local";
+//const EXPLORER_BASE_URL = ""; // no block explorer for a local chain
 
 // Option B: Ganache (uncomment these three lines and comment out the
 // three above if you deploy with `npm run deploy:local -- --network ganache`
@@ -20,9 +20,9 @@ const EXPLORER_BASE_URL = ""; // no block explorer for a local chain
 // const EXPLORER_BASE_URL = "";
 
 // Option C: Sepolia (use this for your actual assignment submission)
-// const EXPECTED_CHAIN_ID_HEX = "0xaa36a7"; // 11155111
-// const EXPECTED_CHAIN_NAME = "Sepolia";
-// const EXPLORER_BASE_URL = "https://sepolia.etherscan.io";
+const EXPECTED_CHAIN_ID_HEX = "0xaa36a7"; // 11155111
+const EXPECTED_CHAIN_NAME = "Sepolia";
+const EXPLORER_BASE_URL = "https://sepolia.etherscan.io";
 
 const CONTRACT_ABI = [
   { "inputs": [], "stateMutability": "nonpayable", "type": "constructor" },

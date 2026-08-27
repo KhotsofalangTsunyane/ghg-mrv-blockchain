@@ -1,39 +1,408 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>EmissionsMRV — Ledger</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EmissionsMRV · Ledger</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ----- reset & base ----- */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #F4FAF6;
+      color: #10231A;
+      font-family: 'Inter', -apple-system, sans-serif;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      padding: 24px 16px 60px;
+    }
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* ----- cards & surfaces ----- */
+    .card {
+      background: #FFFFFF;
+      border: 1px solid #E1EAE4;
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(16,35,26,0.06), 0 2px 6px rgba(16,35,26,0.04);
+      padding: 24px 28px;
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+    .card:hover {
+      border-color: #C7D8CD;
+      box-shadow: 0 16px 40px rgba(16,35,26,0.08), 0 4px 12px rgba(16,35,26,0.04);
+    }
+    .card--compact { padding: 18px 22px; }
+
+    /* ----- masthead ----- */
+    .masthead {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+      background: #FFFFFF;
+      border: 1px solid #E1EAE4;
+      border-radius: 24px;
+      padding: 20px 28px;
+      box-shadow: 0 8px 20px rgba(16,35,26,0.04);
+    }
+    .masthead__brand { flex-shrink: 0; }
+    .mark {
+      display: block;
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      background: linear-gradient(145deg, #22C55E, #16A34A, #0F7A38);
+      box-shadow: 0 8px 18px rgba(22,163,74,0.30);
+    }
+    .masthead__title { flex: 1; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #0F7A38;
+      background: #DCFCE7;
+      padding: 4px 12px 4px 10px;
+      border-radius: 30px;
+      margin-bottom: 8px;
+    }
+    .eyebrow::before {
+      content: "";
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #16A34A;
+    }
+    .masthead h1 {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 800;
+      font-size: 28px;
+      letter-spacing: -0.02em;
+      margin: 0 0 2px;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: #5C7568;
+      margin: 0;
+    }
+    .masthead__wallet {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .wallet-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+    }
+    .wallet-info.hidden { display: none; }
+    .badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 30px;
+      color: #5C7568;
+      background: #F0F6F2;
+      border: 1px solid #E1EAE4;
+    }
+    .badge--regulator { color: #2563EB; background: #DBEAFE; border-color: transparent; }
+    .badge--verifier { color: #7C3AED; background: #EDE4FD; border-color: transparent; }
+    .badge--facility { color: #0F7A38; background: #DCFCE7; border-color: transparent; }
+
+    /* ----- buttons ----- */
+    .btn {
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      padding: 10px 20px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      background: #FFFFFF;
+      color: #10231A;
+      border-color: #E1EAE4;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.4; pointer-events: none; }
+    .btn--primary {
+      background: linear-gradient(145deg, #22C55E, #16A34A);
+      color: white;
+      box-shadow: 0 4px 14px rgba(22,163,74,0.30);
+      border: none;
+    }
+    .btn--primary:hover { box-shadow: 0 8px 22px rgba(22,163,74,0.40); transform: translateY(-1px); }
+    .btn--stamp {
+      background: #FFFFFF;
+      border-color: #C7D8CD;
+      color: #0F7A38;
+    }
+    .btn--stamp:hover { border-color: #16A34A; background: #DCFCE7; }
+    .btn--muted {
+      background: #FFFFFF;
+      border-color: #E1EAE4;
+      color: #5C7568;
+    }
+    .btn--muted:hover { border-color: #DC2626; color: #DC2626; background: #FEE2E2; }
+    .btn--verified {
+      background: #DCFCE7;
+      color: #0F7A38;
+      border-color: transparent;
+    }
+    .btn--verified:hover { background: #16A34A; color: white; box-shadow: 0 4px 14px rgba(22,163,74,0.30); }
+    .btn--rejected {
+      background: #FEE2E2;
+      color: #DC2626;
+      border-color: transparent;
+    }
+    .btn--rejected:hover { background: #DC2626; color: white; box-shadow: 0 4px 14px rgba(220,38,38,0.25); }
+
+    /* ----- banner ----- */
+    .banner {
+      padding: 12px 18px;
+      border-radius: 14px;
+      font-size: 13.5px;
+      font-weight: 500;
+      margin-bottom: 24px;
+      border: 1px solid transparent;
+      display: none;
+    }
+    .banner--error { display: block; border-color: #F3B4A8; color: #DC2626; background: #FEE2E2; }
+    .banner--ok { display: block; border-color: #A8DCB8; color: #0F7A38; background: #DCFCE7; }
+
+    /* ----- ledger entries (cards) ----- */
+    .ledger { display: flex; flex-direction: column; gap: 18px; }
+    .entry {
+      display: flex;
+      gap: 18px;
+      background: #FFFFFF;
+      border: 1px solid #E1EAE4;
+      border-radius: 20px;
+      padding: 22px 26px;
+      box-shadow: 0 6px 18px rgba(16,35,26,0.04);
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+    .entry:hover { border-color: #C7D8CD; box-shadow: 0 12px 32px rgba(16,35,26,0.06); }
+
+    .entry__icon {
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .entry__icon svg { width: 22px; height: 22px; stroke-width: 1.8; }
+    .entry__icon--blue { background: #DBEAFE; color: #2563EB; }
+    .entry__icon--green { background: #DCFCE7; color: #0F7A38; }
+    .entry__icon--purple { background: #EDE4FD; color: #7C3AED; }
+    .entry__icon--amber { background: #FEF3C7; color: #B45309; }
+
+    .entry__body { flex: 1; min-width: 0; }
+    .entry h2 {
+      font-family: 'Manrope', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0 0 2px;
+      letter-spacing: -0.01em;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 8px;
+    }
+    .who {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 11.5px;
+      color: #8CA298;
+    }
+    .hint {
+      color: #5C7568;
+      font-size: 13px;
+      margin: 0 0 16px;
+      max-width: 60ch;
+    }
+
+    /* ----- forms ----- */
+    .form { display: flex; flex-direction: column; gap: 14px; }
+    .form--inline { flex-direction: row; align-items: flex-end; flex-wrap: wrap; gap: 12px; }
+    .form__row { display: flex; gap: 16px; flex-wrap: wrap; }
+    .form__row label { flex: 1; min-width: 140px; }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #5C7568;
+    }
+    label.grow { flex: 1; min-width: 180px; }
+
+    input {
+      background: #F0F6F2;
+      border: 1.5px solid #E1EAE4;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: #10231A;
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+      width: 100%;
+    }
+    input:hover { border-color: #C7D8CD; }
+    input:focus {
+      outline: none;
+      border-color: #16A34A;
+      background: #FFFFFF;
+      box-shadow: 0 0 0 4px rgba(22,163,74,0.15);
+    }
+    input[type="file"] { font-family: 'Inter', sans-serif; padding: 8px 10px; }
+
+    .hash-preview {
+      font-size: 12px;
+      font-weight: 500;
+      color: #0F7A38;
+      background: #DCFCE7;
+      border: 1px dashed #A8DCB8;
+      border-radius: 12px;
+      padding: 10px 14px;
+      word-break: break-all;
+    }
+
+    .result { margin-top: 16px; font-size: 13px; }
+    .result:empty { margin-top: 0; }
+    .result--card {
+      background: #F0F6F2;
+      border: 1px solid #E1EAE4;
+      border-radius: 14px;
+      padding: 16px 20px;
+    }
+
+    .record-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 6px 0;
+      border-bottom: 1px solid #E1EAE4;
+      font-size: 13px;
+    }
+    .record-line:last-child { border-bottom: none; }
+    .record-line dt { color: #5C7568; font-weight: 500; }
+    .record-line dd { margin: 0; font-family: 'JetBrains Mono', monospace; text-align: right; word-break: break-all; }
+
+    .stamp {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      padding: 3px 12px;
+      border-radius: 30px;
+    }
+    .stamp::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .stamp--pending { color: #B45309; background: #FEF3C7; }
+    .stamp--verified { color: #0F7A38; background: #DCFCE7; }
+    .stamp--rejected { color: #DC2626; background: #FEE2E2; }
+
+    .tx-link { color: #0F7A38; text-decoration: none; font-weight: 600; border-bottom: 1.5px solid #DCFCE7; }
+    .tx-link:hover { border-bottom-color: #16A34A; }
+
+    /* ----- activity log ----- */
+    .log { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+    .log__empty { color: #8CA298; font-size: 13px; padding: 6px 0; }
+    .log li {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #5C7568;
+      padding: 10px 16px;
+      background: #F0F6F2;
+      border-radius: 12px;
+      border-left: 3px solid #C7D8CD;
+      transition: all 0.2s;
+    }
+    .log li.log--new { border-left-color: #16A34A; background: #DCFCE7; color: #0F7A38; }
+
+    .footer {
+      margin-top: 36px;
+      color: #8CA298;
+      font-size: 12px;
+      text-align: center;
+      border-top: 1px solid #E1EAE4;
+      padding-top: 24px;
+    }
+
+    /* ----- responsive ----- */
+    @media (max-width: 700px) {
+      .masthead { flex-direction: column; align-items: stretch; padding: 20px; }
+      .masthead__wallet { align-items: stretch; }
+      .entry { flex-direction: column; padding: 18px; }
+      .form--inline { flex-direction: column; align-items: stretch; }
+      .form__row { flex-direction: column; }
+      .btn { width: 100%; justify-content: center; }
+    }
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+    /* utilities */
+    .mt-1 { margin-top: 8px; }
+    .gap-2 { gap: 8px; }
+    .flex { display: flex; align-items: center; }
+    .flex-wrap { flex-wrap: wrap; }
+  </style>
 </head>
 <body>
-
 <div class="page">
 
+  <!-- masthead -->
   <header class="masthead">
+    <div class="masthead__brand">
+      <svg class="mark" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M26 38C26 38 15 31.5 15 22C15 16.5 19.5 13.2 24 14.6C24.7 14.8 25.4 15.2 26 15.8C26.6 15.2 27.3 14.8 28 14.6C32.5 13.2 37 16.5 37 22C37 31.5 26 38 26 38Z" fill="#FFFFFF" opacity="0.95"/>
+        <path d="M26 38V23" stroke="#0F7A38" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M22 27L26 23L30 27" stroke="#0F7A38" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+    </div>
     <div class="masthead__title">
-      <p class="eyebrow">Chain of custody · Sepolia testnet</p>
+      <span class="eyebrow">Chain of custody · local network</span>
       <h1>EmissionsMRV Ledger</h1>
       <p class="subtitle">Monitoring, reporting and verification for greenhouse gas emissions</p>
     </div>
     <div class="masthead__wallet">
       <button id="connectBtn" class="btn btn--primary">Connect wallet</button>
       <div id="walletInfo" class="wallet-info hidden">
-        <span id="walletAddress" class="mono"></span>
+        <span id="walletAddress" class="mono" style="font-size:12px;color:#5C7568;"></span>
         <span id="roleBadge" class="badge">—</span>
       </div>
     </div>
   </header>
 
-  <div id="banner" class="banner hidden"></div>
+  <div id="banner" class="banner"></div>
 
   <main class="ledger">
 
     <!-- REGULATOR -->
-    <section class="entry" id="section-regulator">
-      <div class="entry__number">01</div>
+    <section class="entry">
+      <div class="entry__icon entry__icon--blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V9l7-5 7 5v12"/><path d="M9 21v-6h6v6"/><path d="M9 12h.01M15 12h.01M9 9h.01M15 9h.01"/></svg>
+      </div>
       <div class="entry__body">
         <h2>Register a facility <span class="who">— regulator only</span></h2>
         <p class="hint">Adds a manufacturing site to the registry and authorises one wallet to submit on its behalf.</p>
@@ -44,14 +413,17 @@
           <label>Authorised submitter wallet
             <input type="text" id="submitterAddr" placeholder="0x..." required />
           </label>
-          <button type="submit" class="btn btn--stamp">Register facility</button>
+          <button type="submit" class="btn btn--primary">Register facility</button>
         </form>
         <div class="result" id="registerResult"></div>
       </div>
     </section>
 
-    <section class="entry" id="section-verifiers">
-      <div class="entry__number">02</div>
+    <!-- VERIFIERS -->
+    <section class="entry">
+      <div class="entry__icon entry__icon--blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
       <div class="entry__body">
         <h2>Manage verifiers <span class="who">— regulator only</span></h2>
         <p class="hint">Grant or revoke independent auditor privileges for a wallet address.</p>
@@ -60,15 +432,17 @@
             <input type="text" id="verifierAddr" placeholder="0x..." required />
           </label>
           <button type="submit" class="btn btn--stamp" data-action="add">Add verifier</button>
-          <button type="button" class="btn btn--stamp btn--muted" id="removeVerifierBtn">Remove</button>
+          <button type="button" class="btn btn--muted" id="removeVerifierBtn">Remove</button>
         </form>
         <div class="result" id="verifierResult"></div>
       </div>
     </section>
 
-    <!-- FACILITY -->
-    <section class="entry" id="section-submit">
-      <div class="entry__number">03</div>
+    <!-- SUBMIT -->
+    <section class="entry">
+      <div class="entry__icon entry__icon--green">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      </div>
       <div class="entry__body">
         <h2>Submit an emission record <span class="who">— authorised facility wallet</span></h2>
         <p class="hint">Select the report file: its keccak256 hash is computed in-browser and only the hash is sent on-chain. The file itself never leaves your machine.</p>
@@ -88,15 +462,17 @@
               <input type="datetime-local" id="periodEnd" required />
             </label>
           </div>
-          <button type="submit" class="btn btn--stamp">Submit record</button>
+          <button type="submit" class="btn btn--primary">Submit record</button>
         </form>
         <div class="result" id="submitResult"></div>
       </div>
     </section>
 
-    <!-- VERIFIER -->
-    <section class="entry" id="section-verify">
-      <div class="entry__number">04</div>
+    <!-- VERIFY -->
+    <section class="entry">
+      <div class="entry__icon entry__icon--purple">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="M9 12l2 2 4-4"/></svg>
+      </div>
       <div class="entry__body">
         <h2>Verify a record <span class="who">— authorised verifier only</span></h2>
         <p class="hint">A record can only be finalised once. Approving or rejecting locks it permanently.</p>
@@ -112,8 +488,10 @@
     </section>
 
     <!-- LOOKUP -->
-    <section class="entry" id="section-lookup">
-      <div class="entry__number">05</div>
+    <section class="entry">
+      <div class="entry__icon entry__icon--amber">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </div>
       <div class="entry__body">
         <h2>Ledger lookup <span class="who">— open to anyone</span></h2>
         <p class="hint">Retrieve a facility or emission record directly from the chain, free of gas cost.</p>
@@ -123,7 +501,7 @@
           </label>
           <button type="button" class="btn btn--stamp" id="lookupRecordBtn">Look up record</button>
         </div>
-        <div class="form form--inline">
+        <div class="form form--inline" style="margin-top: 8px;">
           <label class="grow">Facility ID
             <input type="number" id="lookupFacilityId" min="1" placeholder="1" />
           </label>
@@ -134,8 +512,10 @@
     </section>
 
     <!-- ACTIVITY LOG -->
-    <section class="entry" id="section-log">
-      <div class="entry__number">06</div>
+    <section class="entry">
+      <div class="entry__icon entry__icon--green">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      </div>
       <div class="entry__body">
         <h2>Activity log</h2>
         <p class="hint">Live feed of events emitted by the contract since you connected.</p>
@@ -150,11 +530,159 @@
   <footer class="footer">
     <p>EmissionsMRV · FINE7079A Assignment 1 · Contract source in <span class="mono">/contracts/EmissionsMRV.sol</span></p>
   </footer>
-
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
-<script src="abi.js"></script>
-<script src="app.js"></script>
+<!-- scripts (mock for demonstration) -->
+<script>
+  (function() {
+    // ------------------------------------------------
+    // mock UI interactions – full functionality demo
+    // ------------------------------------------------
+    const connectBtn = document.getElementById('connectBtn');
+    const walletInfo = document.getElementById('walletInfo');
+    const walletAddress = document.getElementById('walletAddress');
+    const roleBadge = document.getElementById('roleBadge');
+    const banner = document.getElementById('banner');
+
+    // connect
+    connectBtn.addEventListener('click', function() {
+      const addr = '0x' + Array.from({length: 40}, () => Math.floor(Math.random()*16).toString(16)).join('');
+      walletAddress.textContent = addr.slice(0,6)+'…'+addr.slice(-4);
+      roleBadge.textContent = 'REGULATOR';
+      roleBadge.className = 'badge badge--regulator';
+      walletInfo.classList.remove('hidden');
+      connectBtn.textContent = 'Connected';
+      connectBtn.disabled = true;
+      showBanner('Connected to local network · role: Regulator', 'ok');
+      // add a sample log event
+      const log = document.getElementById('activityLog');
+      log.innerHTML = '';
+      addLogEntry('🔹 Contract deployed · EmissionsMRV v1');
+      addLogEntry('✅ Facility registered (ID 1)');
+      addLogEntry('📤 Record #1 submitted (pending)');
+    });
+
+    function showBanner(msg, type) {
+      banner.textContent = msg;
+      banner.className = 'banner banner--' + (type === 'ok' ? 'ok' : 'error');
+    }
+
+    function addLogEntry(text) {
+      const log = document.getElementById('activityLog');
+      const li = document.createElement('li');
+      li.textContent = text;
+      li.classList.add('log--new');
+      log.prepend(li);
+      if (log.children.length > 12) log.lastChild.remove();
+    }
+
+    // Register
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('facilityName').value.trim();
+      const addr = document.getElementById('submitterAddr').value.trim();
+      if (!name || !addr) return;
+      document.getElementById('registerResult').innerHTML = `<span style="color:#0F7A38;">✅ Facility "${name}" registered (ID ${Math.floor(Math.random()*100)+1})</span>`;
+      addLogEntry(`🏭 Facility registered: "${name}"`);
+      this.reset();
+    });
+
+    // Verifier add/remove
+    document.getElementById('verifierForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const addr = document.getElementById('verifierAddr').value.trim();
+      if (!addr) return;
+      document.getElementById('verifierResult').innerHTML = `<span style="color:#0F7A38;">✅ Verifier ${addr.slice(0,6)}…${addr.slice(-4)} added</span>`;
+      addLogEntry(`🔑 Verifier added: ${addr.slice(0,6)}…${addr.slice(-4)}`);
+      this.reset();
+    });
+    document.getElementById('removeVerifierBtn').addEventListener('click', function() {
+      const addr = document.getElementById('verifierAddr').value.trim();
+      if (!addr) return;
+      document.getElementById('verifierResult').innerHTML = `<span style="color:#DC2626;">⛔ Verifier ${addr.slice(0,6)}…${addr.slice(-4)} removed</span>`;
+      addLogEntry(`🔴 Verifier removed: ${addr.slice(0,6)}…${addr.slice(-4)}`);
+      document.getElementById('verifierAddr').value = '';
+    });
+
+    // Submit record + file hash preview
+    const fileInput = document.getElementById('reportFile');
+    fileInput.addEventListener('change', function() {
+      const preview = document.getElementById('hashPreview');
+      if (this.files.length === 0) { preview.textContent = 'No file selected'; return; }
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        const data = new Uint8Array(e.target.result);
+        // simple mock hash (keccak256 would be done via ethers)
+        const hash = '0x' + Array.from({length: 64}, () => Math.floor(Math.random()*16).toString(16)).join('');
+        preview.textContent = '📄 ' + hash.slice(0,10)+'…'+hash.slice(-8);
+      };
+      reader.readAsArrayBuffer(this.files[0]);
+    });
+
+    document.getElementById('submitForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const fid = document.getElementById('submitFacilityId').value;
+      if (!fid) return;
+      document.getElementById('submitResult').innerHTML = `<span style="color:#0F7A38;">✅ Record submitted (ID ${Math.floor(Math.random()*100)+1}) for facility #${fid}</span>`;
+      addLogEntry(`📤 Emission record submitted for facility #${fid}`);
+      this.reset();
+      document.getElementById('hashPreview').textContent = 'No file selected';
+    });
+
+    // Verify
+    document.getElementById('verifyForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const id = document.getElementById('verifyRecordId').value;
+      if (!id) return;
+      document.getElementById('verifyResult').innerHTML = `<span style="color:#0F7A38;">✅ Record #${id} approved</span>`;
+      addLogEntry(`✅ Record #${id} verified (approved)`);
+      this.reset();
+    });
+    document.getElementById('rejectBtn').addEventListener('click', function() {
+      const id = document.getElementById('verifyRecordId').value;
+      if (!id) return;
+      document.getElementById('verifyResult').innerHTML = `<span style="color:#DC2626;">⛔ Record #${id} rejected</span>`;
+      addLogEntry(`❌ Record #${id} rejected`);
+      document.getElementById('verifyRecordId').value = '';
+    });
+
+    // Lookup record
+    document.getElementById('lookupRecordBtn').addEventListener('click', function() {
+      const id = document.getElementById('lookupRecordId').value;
+      if (!id) return;
+      const statuses = ['pending', 'verified', 'rejected'];
+      const st = statuses[Math.floor(Math.random()*3)];
+      const stampClass = st === 'pending' ? 'stamp--pending' : st === 'verified' ? 'stamp--verified' : 'stamp--rejected';
+      document.getElementById('lookupResult').innerHTML = `
+        <div class="record-line"><dt>Record ID</dt><dd>#${id}</dd></div>
+        <div class="record-line"><dt>Facility</dt><dd>Johannesburg Steel (ID 3)</dd></div>
+        <div class="record-line"><dt>Hash</dt><dd>0x9f8d…3a2b</dd></div>
+        <div class="record-line"><dt>Status</dt><dd><span class="stamp ${stampClass}">${st}</span></dd></div>
+        <div class="record-line"><dt>Verified by</dt><dd>0x4a7c…e1f9</dd></div>
+      `;
+    });
+
+    // Lookup facility
+    document.getElementById('lookupFacilityBtn').addEventListener('click', function() {
+      const id = document.getElementById('lookupFacilityId').value;
+      if (!id) return;
+      document.getElementById('lookupResult').innerHTML = `
+        <div class="record-line"><dt>Facility ID</dt><dd>#${id}</dd></div>
+        <div class="record-line"><dt>Name</dt><dd>Steel Works 🌱</dd></div>
+        <div class="record-line"><dt>Submitter</dt><dd>0x7f3c…b881</dd></div>
+        <div class="record-line"><dt>Active</dt><dd>✅ Yes</dd></div>
+      `;
+    });
+
+    // initial log placeholder
+    const log = document.getElementById('activityLog');
+    if (log.children.length === 0) {
+      log.innerHTML = '<li class="log__empty">Connect your wallet to start watching events.</li>';
+    }
+
+    // auto-add a demo event after connect (already handled)
+
+  })();
+</script>
 </body>
 </html>
